@@ -1,0 +1,20 @@
+{
+  "name": "scala-cli",
+  "argv": [
+    "/Users/nilayshrivastava/Library/Application Support/Coursier/bin/.scala-cli.aux",
+    "bsp",
+    "--json-options",
+    "/Users/nilayshrivastava/Documents/learning_scala/.scala-build/ide-options-v2.json",
+    "--json-launcher-options",
+    "/Users/nilayshrivastava/Documents/learning_scala/.scala-build/ide-launcher-options.json",
+    "--envs-file",
+    "/Users/nilayshrivastava/Documents/learning_scala/.scala-build/ide-envs.json",
+    "/Users/nilayshrivastava/Documents/learning_scala/FirstProgram.scala"
+  ],
+  "version": "1.8.1",
+  "bspVersion": "2.1.1",
+  "languages": [
+    "scala",
+    "java"
+  ]
+}
