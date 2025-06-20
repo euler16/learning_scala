@@ -46,7 +46,7 @@ case class Charge(cc: CreditCard, amount: Double):
 
 @main
 def run(): Unit = 
-  println("Hello world!")
+  println()
   val cc = CreditCard()
   val cafe = Cafe()
   val (cup, charge) = cafe.buyCoffee(cc)
