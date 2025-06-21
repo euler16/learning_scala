@@ -10,7 +10,6 @@
 
 ### if/else
 - expressionss not statements
-- ```
 ```scala
 val x = if y < 0 then 10 else 11 // the type of this expression is Int
 
