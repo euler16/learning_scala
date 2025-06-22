@@ -179,6 +179,8 @@ def pattern(x: Matchable): String = x match
 
 ```
 
+
+
 # Functional Programming Concepts
 
 ## Referential Transparency
@@ -223,3 +225,77 @@ val r2 = "Hello, World".reverse // dlroW ,olleH
 - Referential transparency forces the invariant that everything a function does is represented by the value that it returns according to the result type of the function.
 
 
+## Substitution Model of Evaluation
+
+- Does every expression reduce to a value (in a finite number of steps?
+	- No `def loop: Int = loop`
+
+### Evaluation Strategies
+
+#### 1. Call by Value
+
+- **mechanism**: function arguments are **evaluated to their values _before_ being passed** to the function
+- **advantage**: every function argument is evaluated only once.
+- **predictable** : when side effects involved call by value is  **more predictable** .
+
+```scala
+// by default call by value
+def square(x: Double): Double = x * x
+def sumOfSquares(x: Double, y: Double): Double = square(x) + square(y)
+
+sumOfSquares(3, 2 + 2)
+/**
+Evaluation
+sumOfSquares(3, 2 + 2)
+sumOfSquares(3, 4)
+square(3) + square(4)
+3*3 + 4*4
+25
+**/
+
+```
+
+#### 2. Call by Name
+
+- **mechanism** : function arguments are not evaluated before the function is applied. Instead, the parameter is replaced by the expression itself, and this expression is evaluated each time the corresponding parameter is referenced within function's body.
+- **advantage** : if parameter completely unused during function's evaluation, its argument expression is never evaluated at all. Example : boolean short circuiting.
+
+```scala
+def square(x: Double): Double = x * x
+// special syntax for call by name. space between : and => required
+def sumOfSquares(x: Double, y: => Double): Double = square(x) + square(y)
+
+/**
+Evaluation
+sumOfSquares(3, 2 + 2)
+square(3) + square(2 + 2)
+3*3 + (2+2)*(2+2)
+9 + 16
+**/
+
+```
+
+#### Comparison between Call by Value vs Call by Name
+
+- Expressions composed of pure functions and if both evaluation strategies terminate, they will always reduce to the same final value
+- if call by value terminates => call by name evaluation will also terminate
+- vice versa not true
+
+```scala
+
+def loop: Int = loop
+def first(x: Int, y: Int): Int = x
+first(1, loop) // will go into infinite loop (loop defined above)
+
+
+// however
+def first(x: Int, y: => Int): Int = x
+first(1, loop) // will not go into infinite loop
+```
+
+- An example where the difference between call by name and call by value becomes important
+
+```scala
+def and(x: Boolean, y: => Boolean): Boolean = if x == true then y else false
+// to enable shorcircuiting we have to go by call by name
+```
