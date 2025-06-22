@@ -299,3 +299,29 @@ first(1, loop) // will not go into infinite loop
 def and(x: Boolean, y: => Boolean): Boolean = if x == true then y else false
 // to enable shorcircuiting we have to go by call by name
 ```
+
+
+## Tail Recursion
+
+- Tail recursion is a form of recursion where the **recursive call is the last operation** in a function. This allows the Scala compiler to **optimize** it into a loop internally, preventing stack overflow errors.
+
+- In a typical recursive function, each call adds a new frame to the call stack. But with tail-recursive functions, no additional stack frame is needed.
+
+```scala
+def factorial(n: Int): BigInt =
+  def go(n: Int, acc: BigInt): BigInt =
+    if n == 0 then acc
+    else go(n - 1, acc * n)
+
+  go(n, 1)
+
+// tail recursive fibonacci
+def fibonacci(n: Int): Int = 
+  def go(i: Int, a: Int, b: Int): Int =
+    if i == n then a
+    else go(i + 1, b, a + b)
+
+  go(0, 0, 1)
+```
+
+
