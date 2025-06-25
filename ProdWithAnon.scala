@@ -23,6 +23,9 @@ def mapReduce(f: Int => Int)(combine: (Int, Int) => Int, identity: Int)(a: Int, 
   else combine(f(a), mapReduce(f)(combine, identity)(a+1, b))
 
 
+def sum(f: Int => Int) = mapReduce(f)((x: Int, y: Int) => x + y, 0)
+
+
 @main def run(a: Int, b: Int): Unit = 
   println(product(x => x)(a, b))
   println(s"factorial : ${factorial(b)}")

@@ -180,6 +180,25 @@ def pattern(x: Matchable): String = x match
 ```
 
 
+## Extended Backus-Naur Form
+
+```
+| denotes alternative
+[...] an option (0 or 1),
+{...} a repetition (0 or more)
+```
+
+
+### Types
+```
+Type         = SimpleType | FunctionType
+FunctionType = SimpleType '=>' Type
+             | '(' [Types] ')' '=>' Type
+SimpleType   = Ident
+Types        = Type {',' Type}
+```
+
+
 
 # Functional Programming Concepts
 
@@ -325,3 +344,120 @@ def fibonacci(n: Int): Int =
 ```
 
 
+## Higher Order Function
+
+- Functions that take other functions as parameter and/or returns a function then they are called _Higher Order Functions_
+```scala
+
+// sum is a higher order function
+def sum(f: Int => Int, a: Int, b: Int): Int = 
+	if a > b then 0
+	else f(a) + sum(f, a+1, b)
+
+val sumOfInts = sum(x => x, 1, 10) // 55
+
+// sum returning a function
+def sum(f: Int => Int): (a: Int, b: Int) => Int = 
+	def sumF(a: Int, b: Int): Int = 
+		if a > b then 0
+		else f(a) + sumF(a+1, b)
+	sumF
+
+// so now we can call
+val sumOfInts = sum(x=>x)(1, 10) // 55
+
+// a short hand for the above function definition in scala is
+def sum(f: Int => Int)(a: Int, b: Int): Int = 
+	if a > b then 0 else f(a) + sum(f)(a+1, b)
+
+```
+
+
+### Anonymous Function
+
+- `(x: Int) => x * x * x` , `(x: Int, y: Int) => x + y` 
+- they are syntactic sugar
+- **Function Types** : The type `A => B` is the type of a function that takes an argument of type A and returns a result of type B.
+
+## Currying 
+
+- Functions with Multiple Parameter lists
+
+```scala
+def f(ps1)..(psn-1)(psn) = E
+
+// is equivalent to 
+def f = (ps1 => (ps2 => ..(psn => E))) // Currying
+```
+
+- **Note** : Generally Function application associates to the left.
+
+```scala
+// assuming sum : (Int => Int) : (Int, Int) => Int
+sum(cube)(1, 10) == (sum(cube)) (1, 10)
+```
+
+- **Note**: Function Types associate to the right
+
+```scala
+Int => Int => Int
+// is same as
+Int => (Int => Int)
+
+
+(Int => Int) => (Int, Int) => Int
+// is same as
+(Int => Int) => ((Int, Int) => Int)
+
+```
+
+- Currying leads to greater code reusability
+- For example
+
+```scala
+def translator(locale: String)(text: String): String = 
+	// some translation logic
+
+val inFrench = translator("fr")
+println(inFrench("Hello"))
+
+```
+
+- Important program
+```scala
+/**
+ * write a product function that calculates the product of the values of a function for the points on
+ * a given interval
+ *
+ * write factoral in terms of product
+ *
+ * write a more general function, which generalises both sum and product
+ *
+ * */
+
+
+def product(f: Int => Int)(a: Int, b: Int): Int = 
+  if a > b then 1
+  else f(a) * product(f)(a+1, b)
+
+
+def factorial(n: Int): Int =
+  product(x => x)(1, n)
+
+
+def mapReduce(f: Int => Int)(combine: (Int, Int) => Int, identity: Int)(a: Int, b: Int): Int = 
+  if a > b then identity
+  else combine(f(a), mapReduce(f)(combine, identity)(a+1, b))
+
+// NOTE. assining function to function
+// Thanks to currying!!!
+def sum(f: Int => Int) = mapReduce(f)((x: Int, y: Int) => x + y, 0)
+
+
+@main def run(a: Int, b: Int): Unit = 
+  println(product(x => x)(a, b))
+  println(s"factorial : ${factorial(b)}")
+  println(s"sum : ${mapReduce(x=>x)(_ + _, 0)(a, b)}")
+  println(s"product : ${mapReduce(x=>x)(_ * _, 1)(a, b)}")
+
+```
