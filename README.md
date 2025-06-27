@@ -262,8 +262,27 @@ class Cat extends Animal:
 ### Auxiliary Constructors
 
 ```scala
+
 class Person(val name: String, val age: Int):
   def this(name: String) = this(name, 0)
+
+```
+
+####  **🧠 Scala’s Philosophy**
+
+Scala **favors companion object apply** over secondary constructors because:
+
+- It keeps the **constructor logic decoupled** from the class
+- It enables more **functional patterns**
+- It makes the API **cleaner** and more **flexible**
+
+```scala
+
+class Person(val name: String, val age: Int)
+
+object Person:
+  def apply(name: String): Person = new Person(name, 0)
+
 ```
 
 
@@ -343,6 +362,8 @@ Traits are similar to interfaces in Java. Traits can contain
 - Abstract methods and fields
 - concrete methods and fields
 
+> unlike Java, the primary tool of decomposition in Scala is not classes, but traits.
+
 ```scala
 
 trait HasTail: 
@@ -383,11 +404,138 @@ Traits are more flexible to compose—you can mix in multiple traits, but only e
 - _However Abstract Classes should be used when compatibility with Java code is required_
 
 
+####  `apply`, `unapply` and Extractor Objects 
 
-#### apply, unapply and Extractor Objects 
+#####  **🧵**   **`apply`** **Method**
+
+Scala uses apply as a convention to **call objects like functions**.
+
+> If you define an `apply(...)` method, you can call the object using `()` as if it were a function.
+
+```scala
+
+object Adder:
+  def apply(x: Int, y: Int): Int = x + y
+
+val sum = Adder(2, 3)  // Equivalent to Adder.apply(2, 3)
+
+```
+
+###### Multiple `apply` overloads
+
+```scala
+object MathUtil:
+  def apply(x: Int): Int = x * x
+  def apply(x: Int, y: Int): Int = x + y
+
+MathUtil(3)       // 9
+MathUtil(3, 4)    // 7
+```
+
+
+
+###  Companion Objects and Companion Classes
+
+A **companion object** is an object that shares the same name as a class (or trait) and is defined **in the same file**.
+
+- The class is called the **companion class**.
+- They can **access each other’s private members**.
+- A companion object is often used for:
+
+    - Factory methods (`apply`)
+    - Constants and static members        
+    - Helper functions
+    - Pattern matching (`unapply`)
+
+####  **✅ Why Companion Object?**
+
+Scala has **no static members** (like Java’s static), so companion objects act as a place for:
+- Static-like members
+- Factory methods
+- Constants
+- Pattern matching extractors
+
+```scala
+class Person(val name: String, val age: Int)
+
+object Person:
+  def apply(name: String): Person = new Person(name, 0)
+
+val p = Person("Alice")  // Calls the apply method → Person("Alice", 0)
+```
+
+
+#####  **🔐 Access to Private Members**
+
+```scala
+class Counter(private var value: Int):
+  def current = value
+
+object Counter:
+  def increment(c: Counter): Unit =
+    c.value += 1   // ✅ allowed — accessing private member
+
+```
+
+
+
 
 
 #### Enums
+
+Define a type that consists of a finite set of named values.
+
+```scala
+enum CrustSize: 
+	case Small, Medium, Large
+
+enum CrustType: 
+	case Thin, Thick, Regular
+
+enum Topping: 
+	case Cheese, Pepperoni, BlackOlives, GreenOlives, Onions
+
+
+// to use them 
+import CrustSize.* 
+
+val currentCrustSize = Small
+
+// if/then
+if currentCrustSize == Large then
+  println("You get a prize!")
+
+// match
+currentCrustSize match
+  case Small => println("small")
+  case Medium => println("medium")
+  case Large => println("large")
+
+```
+
+##### Parametrized Enums
+
+```scala
+enum Color(val rgb: Int):
+	case Red   extends Color(0xFF0000)
+	case Green extends Color(0x00FF00)
+	case Blue  extends Color(0x0000FF)
+
+```
+
+##### Enums with fields and methods
+
+```scala
+
+enum Planet(mass: Double, radius: Double): 
+	private final val G = 6.67300E-11 
+	def surfaceGravity = G * mass / (radius * radius) 
+	def surfaceWeight(otherMass: Double) = otherMass * surfaceGravity 
+	
+	case Mercury extends Planet(3.303e+23, 2.4397e6) 
+	case Earth extends Planet(5.976e+24, 6.37814e6)
+
+```
 
 
 ####  🧠  Calling Functions Without Parameters — `def name` vs. `def name()`
@@ -427,6 +575,56 @@ class Rational(x: Int, y: Int):
 - The method has **side effects**
 - The result may **change** each time it’s called
 - You want to **signal an action**, not a value
+
+
+## Case Classes
+
+- Used to model immutable data structures.
+- Useful in functional programming scenarious
+
+```scala
+
+case class Person(name: String, relation: String)
+val christina = Person("Christina", "niece")
+
+// christina.name = "Fred" // error
+// Case classes can be used as patterns 
+christina match case Person(n, r) => println("name is " + n) 
+// `equals` and `hashCode` methods generated for you 
+val hannah = Person("Hannah", "niece") 
+christina == hannah // false 
+// `toString` method 
+println(christina) // Person(Christina,niece) 
+// built-in `copy` method 
+case class BaseballTeam(name: String, lastWorldSeriesWin: Int) 
+val cubs1908 = BaseballTeam("Chicago Cubs", 1908) 
+val cubs2016 = cubs1908.copy(lastWorldSeriesWin = 2016) 
+// result: // cubs2016: BaseballTeam = BaseballTeam(Chicago Cubs,2016)
+```
+
+- Scala compiler automatically generates many helpful methods
+	- `unapply` method. Therefore _pattern matching_ on case classes is allowed `case Person(n, r) => ...`
+	- A `copy` method
+	- `equals` and `hashCode` : allows use instances of case classes in `Map` 
+	- A `toString` method
+
+> A case class has a built-in extractor object with `unapply` generated for free
+
+```scala
+
+case class Person(name: String, age: Int)
+
+val p = Person("Alice", 30)
+
+p match
+  case Person(n, a) => println(s"$n is $a years old")
+
+```
+
+### Case Objects
+
+- Similar to objects but for `case class` es rather than `class` es. 
+- Case objects are useful when you need to pass immutable messages around.
 
 # Functional Programming Concepts
 
