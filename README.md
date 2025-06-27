@@ -337,7 +337,57 @@ class Circle(radius: Double) extends Shape("Circle"):
 - Use **abstract class** when you need a base class with constructor parameters or want tight control.
 - Use **trait** when you’re mixing in modular behaviors (like interfaces with implementations).
 
+#### Traits
 
+Traits are similar to interfaces in Java. Traits can contain
+- Abstract methods and fields
+- concrete methods and fields
+
+```scala
+
+trait HasTail: 
+	def tailColor: String def wagTail() = println("Tail is wagging") 
+	def stopTail() = println("Tail is stopped")
+
+trait HasLegs:
+	def numLegs: Int
+	def walk(): Unit
+	def stop() = println("Stopped walking")
+
+
+class IrishSetter(name: String) extends HasLegs, HasTails:
+	val numLegs = 4
+	val tailColor = "Red"
+	def walk() = println("I'm walking")
+	override def toString = s"$name is a Dog"
+	
+```
+
+Scala 3 has traits with parameters
+
+```scala
+
+trait Pet(name: String): 
+	def greeting: String 
+	def age: Int 
+	override def toString = s"My name is $name, I say $greeting, and I’m $age" 
+	
+class Dog(name: String, var age: Int) extends Pet(name): 
+	val greeting = "Woof" 
+	val d = Dog("Fido", 1)
+
+```
+
+Traits are more flexible to compose—you can mix in multiple traits, but only extend one class—and **should be preferred to classes and abstract classes most of the time**. The rule of thumb is to use classes whenever you want to create instances of a particular type, and traits when you want to decompose and reuse behaviour.
+
+- _However Abstract Classes should be used when compatibility with Java code is required_
+
+
+
+#### apply, unapply and Extractor Objects 
+
+
+#### Enums
 
 
 ####  🧠  Calling Functions Without Parameters — `def name` vs. `def name()`
