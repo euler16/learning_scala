@@ -199,6 +199,184 @@ Types        = Type {',' Type}
 ```
 
 
+## Classes
+
+```scala
+class Person(val name: String, val age: Int): // this is the primary constructor
+  def greet(): String = s"Hello, my name is $name and I am $age years old."
+```
+
+- Class parameters are passed to the **primary constructor**.
+- val → read-only member
+- var → mutable member
+- Without val/var, parameters are not accessible outside the class.
+- **NOTE** : Statements inside a class body are executed at object construction time.
+
+### Access Modifiers
+
+- public (default): accessible from anywhere.
+- private: accessible only within the class.
+- protected: accessible within the class and subclasses.
+- private\[this]: strict private; inaccessible even from other instances.
+
+```scala
+class BankAccount(private var balance: Double):
+  def deposit(amount: Double): Unit = balance += amount
+  def getBalance: Double = balance
+```
+
+### Inheritance
+
+- Scala supports single inheritance using extends.
+
+```scala
+class Animal:
+  def speak(): Unit = println("generic sound")
+
+class Dog extends Animal:
+  override def speak(): Unit = println("woof")
+```
+
+- Use override **explicitly** when overriding methods.
+- Subclasses must call superclass constructor:
+
+```scala
+class Animal(val species: String)
+
+class Dog(name: String) extends Animal("Dog")
+```
+
+#### Protected Members
+
+- Accessible to subclasses, but not outside the class hierarchy.
+
+```scala
+class Animal:
+  protected def sound: String = "some sound"
+
+class Cat extends Animal:
+  def makeSound(): Unit = println(sound) // ✅
+```
+
+
+### Auxiliary Constructors
+
+```scala
+class Person(val name: String, val age: Int):
+  def this(name: String) = this(name, 0)
+```
+
+
+### Extension Methods
+
+An **extension method** allows you to “add” a method to an existing type _without modifying the original class_. Think of it like:
+
+- **Monkey-patching** in Python (but type-safe and scoped).
+- Similar to **category theory’s functors**, you’re lifting behavior over types.
+- Enriching libraries and types you don't own
+
+**NOTE**
+1. Extensions can only add new members, not override existing ones.
+2. Extensions cannot refer to other class members via _this_ .
+
+Example
+
+- Add  `isEven`  to `Int`
+
+```scala
+extension (x: Int)
+  def isEven: Boolean = x % 2 == 0
+
+println(4.isEven) // true
+println(5.isEven) // false
+
+
+/**
+SYNTAX: 
+extension (receiverType)
+  def methodName(args...): ReturnType = { ... }
+*/
+
+extension (s: String)
+  def shout: String = s.toUpperCase + "!"
+  def isLong: Boolean = s.length > 10
+
+"hello".shout  // "HELLO!"
+"world".isLong // false
+
+```
+
+
+Extension methods are **only available where they are in scope**. That means:
+- You can define them in a file and import them.
+- You can place them inside objects or packages.
+
+### Class Hierarchies
+
+#### Abstract Classes
+
+```scala
+
+abstract class Animal:
+  def speak(): String       // abstract method
+  val hasTail: Boolean      // abstract val
+
+  def move(): String = "I move around" // concrete method
+
+
+abstract class Shape(val name: String):
+  def area: Double
+
+class Circle(radius: Double) extends Shape("Circle"):
+  def area: Double = Math.PI * radius * radius
+
+```
+
+👉 _**Rule of thumb**_
+
+- Use **abstract class** when you need a base class with constructor parameters or want tight control.
+- Use **trait** when you’re mixing in modular behaviors (like interfaces with implementations).
+
+
+
+
+####  🧠  Calling Functions Without Parameters — `def name` vs. `def name()`
+
+In Scala, the way you **define** and **invoke** functions without parameters conveys **semantic intent**. There are two syntactically similar but semantically distinct forms:
+
+---
+
+#####  🔹 1. Parameterless Methods (`def name = ...`)
+
+```scala
+class Rational(x: Int, y: Int):
+  def numer = x
+  def denom = y
+```
+
+- ✅ Called as: `r.numer`
+- ❌ Calling `r.numer()` will cause a **compiler error**: method `numer` in class Rational does not take parameters
+
+**Use when:**
+- The method is **pure** (no side effects)
+- The result is conceptually a **field** or **property**
+- You want to signal **referential transparency
+
+##### **🔹 2. Empty Parentheses Methods (** **def name() = ...)**
+
+```scala
+class Rational(x: Int, y: Int):
+  def numer(): Int = x
+  def denom(): Int = y
+```
+
+- ✅ Called as: r.numer()
+- You may **optionally** omit the () in some usages, but it’s **intended** to be called with parentheses
+
+**Use when:**
+- The method has **side effects**
+- The result may **change** each time it’s called
+- You want to **signal an action**, not a value
 
 # Functional Programming Concepts
 
