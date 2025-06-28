@@ -180,6 +180,73 @@ def pattern(x: Matchable): String = x match
 ```
 
 
+## Packages and Imports
+
+### **📦 Packages**
+
+A package is a namespace for organising classes, traits, objects and functions.
+
+```scala
+
+package myapp.utils
+
+class Logger:
+  def log(msg: String): Unit = println(s"LOG: $msg")
+
+// Nested packages
+package myapp:
+  package utils:
+    class Logger:
+      def log(msg: String): Unit = println(msg)
+// ---------------------------------------------------
+// accessing a class from another package
+import myapp.utils.Logger
+
+@main def run = 
+  val logger = new Logger()
+  logger.log("Hello from another package!")
+
+```
+
+
+###  **📥 Imports**
+
+```scala
+
+// basic
+import scala.collection.mutable.ArrayBuffer
+
+// multiple members
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+
+// wildcard import
+import scala.collection.mutable._
+
+// renaming on import
+import scala.collection.mutable.{Map => MutableMap}
+
+// Hiding on import
+import scala.collection.mutable.{Map => _, _} // imports everything except Map
+
+
+// importing within a function
+@main def run =
+  import scala.util.Random
+  println(Random.nextInt())cccc
+
+```
+
+
+###  **✅ Best Practices**
+
+| **Practice**                  | **Reason**                                              |
+| ----------------------------- | ------------------------------------------------------- |
+| Use specific imports          | Avoids namespace pollution                              |
+| Use package objects sparingly | Great for utility functions but can clutter             |
+| Prefer top-level definitions  | Nested packages are neat but harder to navigate         |
+| Use aliases for clarity       | Especially helpful when importing similarly named types |
+
+
 ## Extended Backus-Naur Form
 
 ```
