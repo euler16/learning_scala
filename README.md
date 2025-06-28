@@ -265,6 +265,29 @@ SimpleType   = Ident
 Types        = Type {',' Type}
 ```
 
+## Scala's Class Hierarchies
+
+```markdown
+
+scala.Any
+├── scala.AnyVal
+│   ├── scala.Double
+│   ├── scala.Float
+│   ├── scala.Long
+│   ├── scala.Int
+│   ├── scala.Short
+│   ├── scala.Byte
+│   ├── scala.Unit
+│   ├── scala.Boolean
+│   └── scala.Char
+├── scala.AnyRef (java.lang.Object)
+│   ├── java.lang.String
+│   ├── scala.Iterable
+│   │   └── scala.Seq
+│   │       └── scala.List
+│   └── (other Java/Scala classes)
+└── scala.Nothing (subtype of all types)
+```
 
 ## Classes
 
@@ -471,6 +494,31 @@ Traits are more flexible to compose—you can mix in multiple traits, but only e
 - _However Abstract Classes should be used when compatibility with Java code is required_
 
 
+##### SubTyping
+
+where a given trait is required a subtype of the trait can be used instead
+
+```scala
+
+import scala.collection.mutable.ArrayBuffer
+
+trait Pet:
+	val name: String
+
+class Cat(val name: String) extends Pet
+class Dog(val name: String) extends Pet
+
+val dog = Dog("Harry")
+val cat = Cat("Sally")
+
+val animals = ArrayBuffer.empty[Pet]
+animals.append(dog)
+animals.append(cat)
+animals.foreach(pet => println(pet.name))
+
+```
+
+
 ####  `apply`, `unapply` and Extractor Objects 
 
 #####  **🧵**   **`apply`** **Method**
@@ -543,9 +591,6 @@ object Counter:
     c.value += 1   // ✅ allowed — accessing private member
 
 ```
-
-
-
 
 
 #### Enums
@@ -692,6 +737,84 @@ p match
 
 - Similar to objects but for `case class` es rather than `class` es. 
 - Case objects are useful when you need to pass immutable messages around.
+
+
+## **📦** Generics
+
+### Generic Classes
+
+allow abstraction over types
+
+```scala
+
+class Stack[A]:
+	private var elements: List[A] = Nil
+	def push(x: A): Unit = 
+		elements = x :: elements
+	def peek: A = elements.head
+	def pop(): A = 
+		val currentTop = peek
+		elements = elements.tail
+		currentTop
+
+// usage
+
+val stack = Stack[Int]
+stack.push(1)
+stack.push(2)
+
+
+// subtypes
+class Fruit
+class Apple extends Fruit
+class Banana extends Fruit
+
+val stack  = Stack[Fruit]
+val apple  = Apple()
+val banana = Banana()
+
+stack.push(apple)
+stack.push(banana)
+
+
+// multiple types
+class Pair[A, B](first: A, second: B):
+  def swap: Pair[B, A] = Pair(second, first)
+
+```
+
+### Generic Methods
+
+```scala
+
+def identity[A](x: A): A = x
+
+val i = identity(10)      // Inferred: Int
+val s = identity("hi")    // Inferred: String
+
+```
+
+### Type Inference
+
+```scala
+
+// Generic Methods
+def double[A](x: A): (A, A) = (x, x)
+val r = double(3.14)  // Inferred: (Double, Double)
+
+// Generic classes
+class Container[A](val value: A)
+val c = Container("hello")  // Inferred: Container[String]
+
+// Limitations
+def toList[A](a: A, b: A): List[A] = List(a, b)
+
+val ok = toList(1, 2)              // Inferred: List[Int]
+val fail = toList(1, "hi")         // Error: cannot infer A
+val fixed = toList[Any](1, "hi")   // OK
+
+```
+
 
 # Functional Programming Concepts
 
