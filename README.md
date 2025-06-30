@@ -83,6 +83,14 @@ val x = (1 to 5).map(i => i*i)
 	4. Lists
 	5. Option values
 	6. Custom extractors
+
+**What do Patterns Match?**
+
+- A _constructor pattern_ `C(p_1, ..., p_n)` matches all the values of type `C` (of a subtype) that have been constructed with arguments matching the patterns `p_1, ..., p_n` .
+- A _variable pattern_ `x` matches any value and binds the name of the variable to this value.
+- A _constant pattern_ `c` matches values that are equal to `c` (in the sense of `==` )
+
+
 ```scala
 // basic
 val code = 404
@@ -593,7 +601,7 @@ object Counter:
 ```
 
 
-#### Enums
+## Enums
 
 Define a type that consists of a finite set of named values.
 
@@ -649,6 +657,27 @@ enum Planet(mass: Double, radius: Double):
 
 ```
 
+##### Methods defined for enums
+
+- The values of an enum correspond to unique integers. The integer associated with an enum value is returned by its `ordinal` method (not for parameterized):
+
+```scala
+val red = Color.Red
+println(red.ordinal) // val res0: Int = 0
+```
+
+- The companion object of an enum also defines three utility methods. 
+	- The `valueOf` method obtains an enum value by its name.
+	- The `values` method returns all enum values defined in an enumeration in an immutable `Array`.
+	- The `fromOrdinal` method obtains an enum value from its ordinal (`Int`) value.
+
+```scala
+
+Color.valueOf("Blue") // val res0: Color = Blue
+Color.values // val res1: Array[Color] = Array(Red, Green, Blue)
+Color.fromOrdinal(0) // val res2: Color = Red
+```
+
 
 ####  🧠  Calling Functions Without Parameters — `def name` vs. `def name()`
 
@@ -692,7 +721,8 @@ class Rational(x: Int, y: Int):
 ## Case Classes
 
 - Used to model immutable data structures.
-- Useful in functional programming scenarious
+- Useful in functional programming scenarios
+	- supports functinoal decomposition
 
 ```scala
 
@@ -815,6 +845,107 @@ val fixed = toList[Any](1, "hi")   // OK
 
 ```
 
+
+
+
+## Lists
+
+- Recursive structures
+- immutable - the elements of a list cannot be changed
+- homogenous
+
+All lists are constructed from :
+- the empty list Nil, and
+- the construction operation ::
+	- `x::xs` gives a new list with the first element `x`, followed by the elements of `xs`
+
+
+```scala
+
+val fruit = "apple"::("oranges" :: ("pears" :: Nil))
+val nums  = 1 :: (2 :: (3 :: (4 :: Nil)))
+
+val empty = Nil
+
+// :: is right associative
+1 :: 2 :: 3 :: Nil // 1 :: (2 :: (3 :: Nil))
+
+
+// Pattern Matching on List
+def describe[A](lst: List[A]): String = lst match
+  case Nil           => "Empty list"
+  case head :: Nil   => s"Single element: $head"
+  case x :: y :: Nil => s"Two elements: $x and $y"
+  case x :: xs       => s"Head: $x, Tail: $xs"
+
+
+val list = List(1, 2, 3, 4)
+
+list match
+  case a :: b :: _ => println(s"First two elements: $a and $b")
+  case _ => println("List too short")
+
+// match arbitrary length list
+list match
+  case Nil => println("Empty")
+  case h1 :: h2 :: tail => println(s"First: $h1, Second: $h2, Rest: $tail")
+
+list match
+  case _ :: second :: _ => println(s"Second element: $second")
+  case _ => println("Too short")
+
+```
+
+
+###  **✅ 8. Tips**
+
+- Always end a chain with `Nil` : `1 :: 2 :: 3 :: Nil` 
+- Use `::` in patterns to deconstruct lists
+- Avoid `.head`, `.tail` if you can match with `::`  instead (safer and more idiomatic)
+
+
+## Subtyping and Generics Interaction
+
+Two principal forms of polymorphism:
+ 1. Subtyping
+ 2. Generics
+
+Their interactions - 
+1. Bounds
+2. Variance
+
+## Type Bounds
+
+> Type bounds in Scala provide a mechanism to constrain the types that can be used for type parameters in generic classes or functions. They enhance type safety and allow for more precise control over generics
+
+**Purpose**
+- type bounds allow you to **_specify a relationship between a type parameter and another type_** . This ensures that the type parameter can only be instantiated with types that conform to these specified bounds.
+
+### Upper Bounds
+
+- **Syntax**: An upper bound is declared using the syntax `S <: T`.
+- **Meaning** : This means that the type parameter `S` can only be instantiated with types that are subtypes of `T`. In essence, `S` must conform to `T`'s interface.
+- **Example** : `assertAllPos`:
+	- Consider a method `assertAllPos` which takes a set and returns that same set if all its elements are positive, otherwise it throws an exception.
+	- A less precise type signature might be `assertAllPos(s: IntSet): IntSet`. While this works, it loses information about the specific subtype of `IntSet` that was passed in.
+	- By using an upper bound, `def assertAllPos[S <: InSet](r: S): S`, the type signature becomes more precise.
+	- Here, `S` is the type parameter, and `IntSet` is its upper bound, meaning `S` must be a subtype of `IntSet`.
+	- This type signature expresses that whatever specific subtype of `IntSet` you put in, you get out that same specific subtype1.
+	- For instance, if you pass an `Empty` set (which is a subtype of `IntSet`), `S` can be instantiated to `Empty`, and an `Empty` set is returned. Similarly, if a `NonEmpty` set is passed, `S` is `NonEmpty`, and a `NonEmpty` set is returned.
+	- This retains the specific type information which would be lost if the return type was simply InSet
+
+### Lower Bounds
+
+- **Syntax** : A lower bound is declared using the syntax `S :> T1`.
+- **Meaning** : This means that the type parameter `S` can only be instantiated with types that are supertypes of `T` (or `T` itself). In other words, `T` must be a subtype of `S`.
+	- **Example** : `S :> NonEmpty` would mean that `S` could be `NonEmpty`, `IntSet` (if `IntSet` is a supertype of `NonEmpty`), `AnyRef`, or `Any`. 
+
+
+### Mixed Bounds
+
+- **Syntax** : It is possible to combine both a lower and an upper bound for single type parameter. The lower bound comes first.
+- **Example** : `S :> NonEmpty <: IntSet` 
+- **Meaning** : This specifies that `S` must be a supertype of `NonEmpty` and a subtype of `IntSet`.
 
 # Functional Programming Concepts
 
