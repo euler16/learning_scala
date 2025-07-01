@@ -923,7 +923,7 @@ Their interactions -
 
 ### Upper Bounds
 
-- **Syntax**: An upper bound is declared using the syntax `S <: T`.
+- **Syntax**: An upper bound is declared using the syntax `S <: T`. (_S is subtype of T_)
 - **Meaning** : This means that the type parameter `S` can only be instantiated with types that are subtypes of `T`. In essence, `S` must conform to `T`'s interface.
 - **Example** : `assertAllPos`:
 	- Consider a method `assertAllPos` which takes a set and returns that same set if all its elements are positive, otherwise it throws an exception.
@@ -936,16 +936,93 @@ Their interactions -
 
 ### Lower Bounds
 
-- **Syntax** : A lower bound is declared using the syntax `S :> T1`.
+- **Syntax** : A lower bound is declared using the syntax `S :> T`. (_S is supertype of T_)
 - **Meaning** : This means that the type parameter `S` can only be instantiated with types that are supertypes of `T` (or `T` itself). In other words, `T` must be a subtype of `S`.
 	- **Example** : `S :> NonEmpty` would mean that `S` could be `NonEmpty`, `IntSet` (if `IntSet` is a supertype of `NonEmpty`), `AnyRef`, or `Any`. 
-
 
 ### Mixed Bounds
 
 - **Syntax** : It is possible to combine both a lower and an upper bound for single type parameter. The lower bound comes first.
 - **Example** : `S :> NonEmpty <: IntSet` 
 - **Meaning** : This specifies that `S` must be a supertype of `NonEmpty` and a subtype of `IntSet`.
+
+
+## Variance
+
+> Variance in Scala's type system describes how subtyping relationships between complex types behave when their type parameters have a subtyping relationship. It addresses the question : 
+> _if type_ `A` _is a subtype of type_ `B` _(e.g Apple is subtype of Fruit) then how does_ `C[A]` _relate to_ `C[B]` _for a generic type_ `C[T]` ?
+
+**Definition**
+
+Say `C[T]` is a parametrized type and `A, B` are types such that `A <: B`. 
+In general there are _three_ possible relationships between `C[A]` and `C[B]`: 
+
+`C[A] <: C[B]`  - C is _covariant_
+`C[A] >: C[B]`  - C is _contravariant_ 
+neither `C[A]` nor `C[B]` is a subtype of the other - C is _nonvariant_ 
+
+
+There are three main types
+
+### 1. Covariance
+
+- **Definition** : A type `C[T]` is covariant if, given `A <: B`, then `C[A]` is a subtype of `C[B]` . This means the  subtyping relationship _"varies in the same direction"_ as the type parameter.
+- **Syntax**
+
+```scala
+class C[+T] ... // you declare the parametrized type i.e. C here , to be covariant ..
+trait List[+T] ...
+```
+
+- **Intuition** : Intuitively, if you have a collection of more specific items, it can be treated as a collection of more general items. For instance, a list of `Apple` objects can be used where a list of `Fruit` objects is expected, as `List[Apple]` is a subtype of `List[Fruit]` if `Apple` is a subtype of `Fruit` .
+### 2. Contraviariance
+
+- **Definition** : A type `C[T]` is contravariant if, given `A <: B`, then `C[B]` is a subtype of `C[A]`. This means the subtyping relationship "varies in the other direction"
+- **Syntax** : 
+
+```scala
+class C[-T]
+```
+
+- **Example** : 
+
+### 3. Non - variance
+
+- **Definition** : A type `C[T]` is non-variant (or invariant) if neither `C[A]` nor `C[B]` is a subtype of the other, given `A <: B`.
+
+- **Syntax** : No annotation is used before the type parameter, for example, `class C[T]`.
+
+- **Example** : Scala arrays (`Array[T]`) are non-variant. This design decision in Scala prevents the runtime errors seen with Java arrays by making assignments like `Array[NonEmpty] = Array[InSet]` a compile-time type error
+
+
+### Liskov Substitution Principle (LSP) 
+
+- guiding principle for sound subtyping.
+> _if_ `A` _is a subtype of_ `B` _, then **everything** one can do with a value of type_ `B` _(the supertype) should also be possible with a value of type_ `A`.
+>  `A` is "better than" `B` because it can fullfill every role `B` plays, potentially with more functionality.
+
+
+### Typing Rules for Functions
+
+> If `A2 <: A1` and `B1 <: B2` then
+> `A1 => B1 <: A2 => B2`
+
+So functions are _contravariant_ in their argument type(s) and _covariant_ in their result type.
+So the underlying function trait would like
+
+```scala
+package scala
+trait Function1[-T, +U]:
+	def apply(x: T): U
+```
+
+Roughly,
+- _covariant_ type parameters can only appear in method results.
+- _contravariant_ type parameters can only appear in method parameters.
+- _nonvariant_ type parameters can appear anywhere
+
+The precise rules are a bit more involved.
+
 
 # Functional Programming Concepts
 
