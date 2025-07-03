@@ -1007,7 +1007,9 @@ class C[-T]
 > If `A2 <: A1` and `B1 <: B2` then
 > `A1 => B1 <: A2 => B2`
 
-So functions are _contravariant_ in their argument type(s) and _covariant_ in their result type.
+So functions are _contravariant_  (or invariant) 
+
+in their argument type(s) and _covariant_ in their result type.
 So the underlying function trait would like
 
 ```scala
@@ -1022,6 +1024,47 @@ Roughly,
 - _nonvariant_ type parameters can appear anywhere
 
 The precise rules are a bit more involved.
+
+
+## Lists
+
+```scala
+// Construction
+val fruits = List("Apple", "Orange", "Banana")
+val nums   = 1 :: 2 :: Nil
+
+// Decomposition
+fruits.head   // "Apple"
+nums.tail    // 2 :: Nil
+nums.isEmpty // false
+
+nums match
+	case x :: y :: _ => x + y // 3
+
+
+// creating new lists:
+xs ++ ys // concatenation
+xs.reverse 
+cs.updated(n, x) // the new list containing the same element as xs, except at index n where it contains x.
+
+// Finding elements
+xs.indexOf(x) // The index of the first element in xs equal to x, or -1 if x does not appear in xs
+
+xs.contains(x) // same as xs.indexOf(x) >= 0
+
+```
+
+### **📋 List Methods**
+
+| **Method**           | **Description**                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| xs.length            | The number of elements of xs.                                                          |
+| xs.last              | The list’s last element, exception if xs is empty.                                     |
+| xs.init              | A list consisting of all elements of xs except the last one, exception if xs is empty. |
+| xs.take(n)           | A list consisting of the first n elements of xs, or xs itself if it is shorter than n. |
+| xs.drop(n)           | The rest of the collection after taking first n elements.                              |
+| xs(n) or xs.apply(n) | The element of xs at index n.                                                          |
+
 
 
 # Functional Programming Concepts
