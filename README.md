@@ -1031,7 +1031,7 @@ The precise rules are a bit more involved.
 ```scala
 // Construction
 val fruits = List("Apple", "Orange", "Banana")
-val nums   = 1 :: 2 :: Nil
+val nums   = 1 :: 2 :: Nil // Nil is required here
 
 // Decomposition
 fruits.head   // "Apple"
@@ -1064,6 +1064,17 @@ xs.contains(x) // same as xs.indexOf(x) >= 0
 | xs.take(n)           | A list consisting of the first n elements of xs, or xs itself if it is shorter than n. |
 | xs.drop(n)           | The rest of the collection after taking first n elements.                              |
 | xs(n) or xs.apply(n) | The element of xs at index n.                                                          |
+
+**Important Program**
+
+```scala
+// List[Any]: List(List(1,1), 2, List(3, 4)) flattened to List(1,1,2,3,4)
+// Notice how List[Any] can be used to create heterogeneous lists
+def flatten(xs: Any) : List[Any] = xs match
+  case Nil => Nil
+  case y :: ys => flatten(y) ++ flatten(ys)
+  case _ => xs :: Nil // interesting NOTE
+```
 
 
 
