@@ -1025,6 +1025,58 @@ Roughly,
 
 The precise rules are a bit more involved.
 
+##  **📦** Pair and Tuples
+
+- A **tuple** is a finite, ordered collection of elements.
+- Each element **can have a different type**.
+- Scala supports tuples from **Tuple1 to Tuple22**.
+- A tuple of two elements is called a **Pair** (Tuple2).
+
+```scala
+
+val pair = ("hello", 42)     // Tuple2[String, Int]
+println(pair._1)             // "hello"
+println(pair._2)             // 42
+
+val t3 = ("Scala", 3.0, true) // Tuple3[String, Double, Boolean]
+println(t3._1)                // "Scala"
+println(t3._2)                // 3.0
+println(t3._3)                // true
+```
+
+
+***Common Use Cases***
+
+```scala
+
+// Returning multiple values from functions
+def stats(xs: List[Int]): (Int, Int) = 
+  (xs.min, xs.max)
+
+val (minVal, maxVal) = stats(List(1, 2, 3, 4))
+
+// zipping lists
+val names = List("Alice", "Bob")
+val scores = List(85, 90)
+val paired = names.zip(scores)
+// List(("Alice", 85), ("Bob", 90))
+
+
+
+```
+
+
+***Accessing Elements***
+
+```scala
+// preferred way
+val person = ("Ada", 1815)
+val (name, birthYear) = person
+
+// or 
+println(s"${person._1}") // Ada
+
+```
 
 ## Lists
 
@@ -1075,6 +1127,46 @@ def flatten(xs: Any) : List[Any] = xs match
   case y :: ys => flatten(y) ++ flatten(ys)
   case _ => xs :: Nil // interesting NOTE
 ```
+
+### ***Higher Order List Functions***
+
+#### 1. `map`
+
+```scala
+// pedagogical example
+extension [T](xs: List[T])
+	def map(p: T => T): List[T] = xs match
+		case Nil     => Nil
+		case x :: xs1 => p(x) :: map(xs1)
+
+```
+
+####  2. `filter`
+
+```scala
+
+// pedagogical implementation
+
+extension [T](xs: List[T])
+	def filter(p: T => Boolean): List[T] = xs match
+		case Nil    => xs
+		case x :: xs1 => if p(x) then x :: xs1.filter(p) else xs1.filter(p)
+
+// you can make calls like
+xs.filter(x => x > 0)
+```
+
+#####  🔁 Variations of `filter` in Scala
+
+| Method            | Behavior                                                  |
+| ----------------- | --------------------------------------------------------- |
+| `xs.filterNot(p)` | Keeps elements that do **not** satisfy predicate `p`      |
+| `xs.partition(p)` | Splits into `(xs.filter(p), xs.filterNot(p))` efficiently |
+| `xs.takeWhile(p)` | Longest prefix of elements satisfying `p`                 |
+| `xs.dropWhile(p)` | Drops prefix satisfying `p`, returns the rest             |
+| `xs.span(p)`      | Tuple of `(takeWhile(p), dropWhile(p))`, in one traversal |
+
+#### Reduction of Lists
 
 
 
