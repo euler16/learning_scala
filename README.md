@@ -1168,6 +1168,61 @@ xs.filter(x => x > 0)
 
 #### Reduction of Lists
 
+##### `reduceLeft`
+
+Reduces a collection to a single value by applying a binary function **left to right**.
+
+```scala
+// Evaluation order
+List(a1, a2, a3).reduceLeft(op) 
+// expands to: op(op(a1, a2), a3)
+
+// Example - Sum
+List(1, 2, 3, 4).reduceLeft(_ + _)  // 10
+
+// Example - Concatenation
+List("Scala", "is", "fun").reduceLeft(_ + " " + _)  // "Scala is fun"
+
+// CAUTION - empty list not supported
+List().reduceLeft(_ + _)  // ❌ UnsupportedOperationException
+
+```
+
+***prefer using `foldLeft` over `reduceLeft`***
+
+##### `foldLeft`
+
+- Takes an explicit **initial value** `z`
+- Safe on **empty collections**
+- Can return a different type than the collection’s element type
+
+```scala
+
+List(1, 2, 3).foldLeft(0)(_ + _) 
+// ((0 + 1) + 2) + 3 = 6
+
+List[Int]().foldLeft(0)(_ + _) 
+// 0 (safe)
+
+
+```
+
+
+##### `foldLeft` vs `foldRight`
+
+They are equivalent when the operation is:
+- **Associative**: (a op b) op c == a op (b op c)
+- **Commutative**: a op b == b op a
+
+Even though ***order of evaluation differs***
+- `foldLeft: (((z op x1) op x2) op x3)`
+- `foldRight: (x1 op (x2 op (x3 op z)))`
+
+They give different results when the `op` is non-commutative
+
+ **📌 Efficiency:**
+- foldLeft: ✅ Tail-recursive (efficient)
+- foldRight: ❌ Not stack-safe on List 
 
 
 # Functional Programming Concepts

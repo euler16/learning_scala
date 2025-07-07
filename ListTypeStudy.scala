@@ -63,6 +63,18 @@ extension [T](xs: List[T])
 
 
 
+// foldRight vs foldLeft
+
+def concatRight[T](xs: List[T], ys: List[T]): List[T] =
+  xs.foldRight(ys)((x, y) => x::y)
+
+def concatLeft[T](xs: List[T], ys: List[T]): List[T] = 
+  xs.foldLeft(ys)((x, y) => y::x)
+
+
+// reverse list using foldLeft
+def reverse[T](xs: List[T]): List[T] = xs.foldLeft()()
+
 
 
 @main def run = 
@@ -77,3 +89,5 @@ extension [T](xs: List[T])
 
   val as = List("a", "a", "a", "b", "c", "c", "a")
   println(s"Encoding: ${as} to ${encode(as)}")
+
+  println(s"concatenating: ${concatLeft(xs, ys)}")
