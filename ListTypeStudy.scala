@@ -73,8 +73,18 @@ def concatLeft[T](xs: List[T], ys: List[T]): List[T] =
 
 
 // reverse list using foldLeft
-def reverse[T](xs: List[T]): List[T] = xs.foldLeft()()
+def reverse[T](xs: List[T]): List[T] = xs.foldLeft(List[T]())((xs, x) => x :: xs)
 
+/**
+ * Implement map and length functions using foldRight
+ */ 
+
+def mapFunc[T](xs: List[T], f: T => T): List[T] = 
+  xs.foldRight(List[T]())((curr: T, acc: List[T]) => f(curr) :: acc )
+
+
+def lengthFunc[T](xs: List[T]): Int = 
+  xs.foldRight(0)((curr: T, acc: Int) => 1 + acc)
 
 
 @main def run = 
@@ -91,3 +101,6 @@ def reverse[T](xs: List[T]): List[T] = xs.foldLeft()()
   println(s"Encoding: ${as} to ${encode(as)}")
 
   println(s"concatenating: ${concatLeft(xs, ys)}")
+
+  println(s"mapFunc of ${xs}: ${mapFunc(xs, x => x * x)}")
+  println(s"get its length: ${lengthFunc(xs)}")

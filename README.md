@@ -1192,9 +1192,20 @@ List().reduceLeft(_ + _)  // ❌ UnsupportedOperationException
 
 ##### `foldLeft`
 
+```scala
+def foldLeft[B](z: B)(op: (B, A) => B): B
+
+```
+
+The binary operator is of the form `(accumulator, listElement)` and is expected to return the same type as `accumulator` .
+
+
+Applies a binary operator to a start value and all elements of this list, going left to right.
+
 - Takes an explicit **initial value** `z`
 - Safe on **empty collections**
 - Can return a different type than the collection’s element type
+
 
 ```scala
 
@@ -1224,6 +1235,87 @@ They give different results when the `op` is non-commutative
 - foldLeft: ✅ Tail-recursive (efficient)
 - foldRight: ❌ Not stack-safe on List 
 
+Also the signatures of op in both are different
+
+**`foldLeft`**
+
+```scala
+def foldLeft[B](z: B)(op: (B, A) => B): B
+```
+- Traverses: **left to right**
+- Function op: accumulator comes **first**
+- Order: (acc, elem) => ...
+
+**`foldRight`**
+
+```scala
+def foldRight[B](z: B)(op: (A, B) => B): B
+```
+
+- Traverses: **right to left**
+- Function op: element comes **first**
+- Order: (elem, acc) => ...
+
+***Example***
+
+```scala
+val nums = List(1, 2, 3)
+
+// using foldLeft
+nums.foldLeft(0)((acc, x) => acc + x)
+// (0 + 1) => 1
+// (1 + 2) => 3
+// (3 + 3) => 6
+
+/**
+Step-by-step:
+
+foldLeft(0)
+  => ((0 + 1) = 1)
+  => ((1 + 2) = 3)
+  => ((3 + 3) = 6)
+
+Visual:
+
+        +
+      /   \
+     +     3
+   /   \
+  +     2
+ / \
+0   1
+*/
+
+
+
+// using foldRight
+nums.foldRight(0)((x, acc) => x + acc)
+// (3 + 0) => 3
+// (2 + 3) => 5
+// (1 + 5) => 6
+
+/**
+
+Step-by-step:
+
+foldRight(0)
+  => ((3 + 0) = 3)
+  => ((2 + 3) = 5)
+  => ((1 + 5) = 6)
+
+Visual:
+
+        +
+      /   \
+     1     +
+         /   \
+        2     +
+            /   \
+           3     0
+
+*/
+
+```
 
 # Functional Programming Concepts
 
