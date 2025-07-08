@@ -1078,6 +1078,19 @@ println(s"${person._1}") // Ada
 
 ```
 
+
+## Collection Hierarchy
+
+```
+                    Iterable
+                   /    |    \
+                Seq    Set   Map
+               /   \
+           List   Vector
+
+Array (not part of this tree, comes from Java)
+```
+
 ## Lists
 
 ```scala
@@ -1218,7 +1231,6 @@ List[Int]().foldLeft(0)(_ + _)
 
 ```
 
-
 ##### `foldLeft` vs `foldRight`
 
 They are equivalent when the operation is:
@@ -1316,6 +1328,174 @@ Visual:
 */
 
 ```
+
+## Vectors
+
+Vectors in Scala are **immutable**, **indexed sequences** that provide **efficient random access** and **update operations**. They are a good choice when you want:
+
+- Fast read/update access to elements by index (O(log n) or better)
+- Immutability (structural sharing on updates)
+- Append and prepend operations that are _relatively_ fast (amortized O(1))
+
+It is as an **immutable general-purpose alternative to Array or List**, designed for **performance and safe functional programming**.
+
+```scala
+
+val v1 = Vector(1, 2, 3)
+val v2 = v1.updated(1, 42)
+
+println(v1)  // Vector(1, 2, 3)
+println(v2)  // Vector(1, 42, 3)
+
+/**
+✅ v1 remains unchanged
+✅ v2 is a new vector
+✅ Internally, only the branch with index 1 is copied/modified — rest is shared
+*/
+
+```
+
+### Vector Internals
+
+> Even though it seems you can “change” elements (e.g., updated), Scala does **not** mutate the vector in-place. Instead, it **creates a new vector** that shares most of the underlying structure with the original, using a **tree-like structure** internally (32-ary tree).
+
+
+Scala Vector is implemented as a **wide shallow tree** (usually 32-ary). Each node holds up to 32 elements or child nodes.
+
+- **Accessing an element by index** is O(log₃₂ n) ≈ constant for most practical sizes.
+- **Updating** is efficient because only a small part of the tree is rebuilt.
+
+_You can think of a Vector like a **shelf of books** with 32 compartments. Instead of copying the whole shelf when you update a book, you **copy only the one compartment**, and leave the rest unchanged — a very functional way of pretending you’re mutating, without side effects._
+
+This structure gives it a good **tradeoff between indexing speed and immutability**.
+
+### Common Operations for Vectors
+
+#### Creation
+
+```scala
+val v = Vector(1, 2, 3)
+val empty = Vector.empty[Int]
+val filled = Vector.fill(5)("x")
+val tabulated = Vector.tabulate(5)(n => n * n)  // Vector(0, 1, 4, 9, 16)
+```
+
+#### Modification (return new Vector)
+
+```scala
+val v1 = Vector(1, 2, 3)
+
+// Append and Prepend
+// NOTE colon always points to the sequence
+val v2 = v1 :+ 4           // Vector(1, 2, 3, 4) // APPEND
+val v3 = 0 +: v1           // Vector(0, 1, 2, 3) // PREPEND
+
+// Update element
+val v4 = v1.updated(1, 99) // Vector(1, 99, 3)
+
+// Concatenation
+val v5 = v1 ++ Vector(4, 5)
+```
+
+#### Query & Access
+
+```scala
+v1(0)             // Access by index
+v1.head, v1.tail  // Like lists
+v1.take(2)        // Vector(1, 2)
+v1.drop(1)        // Vector(2, 3)
+v1.indexOf(3)     // 2
+v1.contains(2)    // true
+```
+
+#### Transformations
+
+```scala
+
+v1.map(_ * 2)         // Vector(2, 4, 6)
+v1.filter(_ % 2 == 1) // Vector(1, 3)
+v1.reverse            // Vector(3, 2, 1)
+v1.zipWithIndex       // Vector((1,0), (2,1), (3,2))
+
+```
+
+#### Aggregations
+
+```scala
+v1.sum                // 6
+v1.foldLeft(0)(_ + _) // 6
+v1.reduce(_ max _)    // 3
+```
+
+#### Comparison with Other Sequences
+
+| **Feature**        | List     | Vector             | Array           |
+| ------------------ | -------- | ------------------ | --------------- |
+| Immutable          | ✅        | ✅                  | ❌ (mutable)     |
+| Fast head          | ✅ (O(1)) | ❌ (O(log n))       | ✅               |
+| Fast random access | ❌ (O(n)) | ✅ (O(log n))       | ✅ (O(1))        |
+| Fast append        | ❌ (O(n)) | ✅ (amortized O(1)) | ❌ (copy needed) |
+| Memory efficiency  | ✅        | ✅                  | ✅               |
+
+## Range
+
+In Scala, a **Range** is a special kind of **sequence** that represents a series of evenly spaced integers. It is **immutable**, **efficient**, and commonly used for iteration, loops, and indexing.
+
+### Syntax and Operators
+
+Scala provides three key operators to define ranges:
+
+| **Operator** | **Meaning**         | **Example**  | **Result**    |
+| ------------ | ------------------- | ------------ | ------------- |
+| to           | Inclusive           | 1 to 5       | 1, 2, 3, 4, 5 |
+| until        | Exclusive           | 1 until 5    | 1, 2, 3, 4    |
+| by           | Step (stride) value | 1 to 10 by 3 | 1, 4, 7, 10   |
+
+**Examples Explained**
+
+```scala
+val r: Range = 1 until 5
+/*
+- Produces: Range(1, 2, 3, 4)
+- 5 is excluded → until is exclusive
+*/
+
+val s: Range = 1 to 5
+// - Produces: Range(1, 2, 3, 4, 5) 
+// - 5 is included → to is inclusive
+
+val t: 1 to 10 by 3
+// - Produces: Range(1, 4, 7, 10)  
+// - Starts at 1, increments by 3 until ≤ 10
+
+val u: 6 to 1 by -2
+// - Produces: Range(6, 4, 2) 
+// - Steps downward with negative step size
+
+```
+
+
+### Use Cases
+
+**`for` loops**
+
+```scala
+for (i <- 1 to 5) println(i)
+```
+
+**generating test data**
+
+```scala
+val testIds = (100 to 110 by 2).toList
+```
+
+**Repeated actions**
+
+```scala
+(1 to 3).foreach(_ => println("Hi!"))
+```
+
+
 
 # Functional Programming Concepts
 
