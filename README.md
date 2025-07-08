@@ -847,7 +847,6 @@ val fixed = toList[Any](1, "hi")   // OK
 
 
 
-
 ## Lists
 
 - Recursive structures
@@ -1090,6 +1089,107 @@ println(s"${person._1}") // Ada
 
 Array (not part of this tree, comes from Java)
 ```
+
+
+## Sequence
+
+In Scala, a **Sequence** (trait Seq) is an **ordered collection** of elements. It forms a key part of the Scala Collections hierarchy.
+
+1. **Ordered**: 
+	- Elements are stored in a specific order (the order they were inserted).
+2. **Indexed or Linear**: 
+	- Some Seq types support fast indexing (like `Vector`, `Array`, `IndexedSeq`), others are optimized for head/tail operations (like List).
+3.  **Immutable by default**: 
+	- Seq in the `scala.collection.immutable` package is immutable unless stated otherwise.
+
+
+| **Type**   | **Use When You Need**                                    |
+| ---------- | -------------------------------------------------------- |
+| `List`     | Fast prepend (`O(1)`), functional programming idioms     |
+| `Vector`   | General-purpose immutable collection, fast random access |
+| `Array`    | Java interop, performance-critical code                  |
+| `Range`    | Represent a sequence of evenly spaced numbers            |
+| `LazyList` | Potentially infinite sequences                           |
+
+### Sequence Methods and Operators
+
+#### Construction and Access
+
+| **Method**       | **Description**           | **Example**       |
+| ---------------- | ------------------------- | ----------------- |
+| `apply(i)`       | Access element at index i | `seq(2)`          |
+| `length / size`  | Number of elements        | `seq.length`      |
+| `isEmpty`        | Check if empty            | `seq.isEmpty`     |
+| `nonEmpty`       | Check if not empty        | `seq.nonEmpty`    |
+| `head`           | First element             | `seq.head`        |
+| `last`           | Last element              | `seq.last`        |
+| `init`           | All but last              | `seq.init`        |
+| `tail`           | All but first             | `seq.tail`        |
+| `indexOf(elem)`  | Index of first occurrence | `seq.indexOf(3)`  |
+| `contains(elem)` | Whether element exists    | `seq.contains(5)` |
+
+#### Transformations
+
+| **Method**     | **Description**                    | **Example**                            |
+| -------------- | ---------------------------------- | -------------------------------------- |
+| `map(f)`       | Apply function to each element     | `seq.map(_ * 2)`                       |
+| `flatMap(f)`   | Apply function and flatten         | `seq.flatMap(x => List(x, -x))`        |
+| `collect(f)`   | Pattern match and transform        | `seq.collect { case x if x > 0 => x }` |
+| `filter(p)`    | Keep elements satisfying predicate | `seq.filter(_ % 2 == 0)`               |
+| `filterNot(p)` | Drop elements satisfying predicate | `seq.filterNot(_.isEmpty)`             |
+| `distinct`     | Remove duplicates                  | `seq.distinct`                         |
+| `reverse`      | Reverse the sequence               | `seq.reverse`                          |
+| `sorted`       | Sort (requires Ordering)           | `seq.sorted`                           |
+| `sortBy(f)`    | Sort using a key                   | `seq.sortBy(_.length)`                 |
+| `sortWith(p)`  | Custom comparator                  | `seq.sortWith(_ > _)`                  |
+
+#### Aggregations and Reductions
+
+| **Method**         | **Description**                    | **Example**               |
+| ------------------ | ---------------------------------- | ------------------------- |
+| `foldLeft(z)(op)`  | Left fold                          | `seq.foldLeft(0)(_ + _)`  |
+| `foldRight(z)(op)` | Right fold                         | `seq.foldRight(0)(_ + _)` |
+| `reduceLeft(op)`   | Reduce left without initial value  | `seq.reduceLeft(_ + _)`   |
+| `reduceRight(op)`  | Reduce right without initial value | `seq.reduceRight(_ + _)`  |
+| `sum`              | Sum of elements (numeric types)    | `seq.sum`                 |
+| `product`          | Product of elements                | `seq.product`             |
+| `min / max`        | Smallest / Largest element         | `seq.min, seq.max`        |
+| `mkString(sep)`    | Join elements as string            | `seq.mkString(", ")`      |
+
+#### Grouping and Sliding
+
+| **Method**     | **Description**                     | **Example**                 |
+| -------------- | ----------------------------------- | --------------------------- |
+| `groupBy(f)`   | Group elements by key               | `seq.groupBy(_.length)`     |
+| `sliding(n)`   | Returns iterator of sliding windows | `seq.sliding(2).toList`     |
+| `grouped(n)`   | Fixed-size chunks                   | `seq.grouped(3).toList`     |
+| `partition(p)` | Split into 2 groups by predicate    | `seq.partition(_ % 2 == 0)` |
+| `splitAt(n)`   | Splits into 2 at index n            | `seq.splitAt(3)`            |
+| `span(p)`      | Prefix satisfying predicate + rest  | `seq.span(_ < 4)`           |
+
+
+#### Searching
+
+| **Method**      | **Description**                    | **Example**              |
+| --------------- | ---------------------------------- | ------------------------ |
+| `find(p)`       | First element satisfying predicate | `seq.find(_ > 3)`        |
+| `exists(p)`     | If any element satisfies predicate | `seq.exists(_ % 2 == 0)` |
+| `forall(p)`     | If all elements satisfy predicate  | `seq.forall(_ > 0)`      |
+| `indexWhere(p)` | Index of first matching element    | `seq.indexWhere(_ > 5)`  |
+
+#### Modification (non-mutating)
+
+| **Method**              | **Description**                     | **Example**                     |
+| ----------------------- | ----------------------------------- | ------------------------------- |
+| `:+`                    | Append an element                   | `seq :+ 10`                     |
+| `+:`                    | Prepend an element                  | `0 +: seq`                      |
+| `++`                    | Concatenate sequences               | `seq ++ Seq(6, 7)`              |
+| `updated(i, v)`         | Replace element at index i          | `seq.updated(1, 42)`            |
+| `patch(from, patch, n)` | Replace slice with another sequence | `seq.patch(2, Seq(99, 100), 1)` |
+| `drop(n)`               | Drop first n elements               | `seq.drop(2)`                   |
+| `dropRight(n)`          | Drop last n elements                | `seq.dropRight(2)`              |
+| `take(n)`               | Take first n elements               | `seq.take(3)`                   |
+| `slice(from, until)`    | Slice from from to until - 1        | `seq.slice(1, 4)`               |
 
 ## Lists
 
