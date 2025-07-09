@@ -68,6 +68,18 @@ val x = for i <- 1 to 5 yield i*i
 val x = (1 to 5).map(i => i*i)
 ```
 
+The for expression is similar to loops in imperative languages except that it builds a list of the results of all iterations
+
+```scala
+for p <- persons if p.age > 20 yield p.name 
+// is equivalent to
+persons
+	.filter(p => p.age > 20)
+	.map(p => p.name)
+```
+
+
+
 ### Match 
 
 - is an expression
@@ -1155,6 +1167,11 @@ In Scala, a **Sequence** (trait Seq) is an **ordered collection** of elements. I
 | `product`          | Product of elements                | `seq.product`             |
 | `min / max`        | Smallest / Largest element         | `seq.min, seq.max`        |
 | `mkString(sep)`    | Join elements as string            | `seq.mkString(", ")`      |
+***Remember :***
+
+```scala
+xs.flatMap(f) = xs.map(f).flatten
+```
 
 #### Grouping and Sliding
 
@@ -1857,4 +1874,23 @@ def sum(f: Int => Int) = mapReduce(f)((x: Int, y: Int) => x + y, 0)
   println(s"sum : ${mapReduce(x=>x)(_ + _, 0)(a, b)}")
   println(s"product : ${mapReduce(x=>x)(_ * _, 1)(a, b)}")
 
+```
+
+
+## Generating Pairs
+
+1. Generate all the integers `i` between 1 and `n` (excluded).
+2. For each integer `i`, generate the list of pairs `(i, 1), ..., (i, i-1)`.
+
+This can be achieved by combining `until` and `map`.
+
+```scala
+(1 until n).map(i => 
+	(1 until i).map(j => (i,j))).flatten
+
+
+// SINCE xs.flatMap(f) = xs.map(f).flatten
+// the above expression is equal to
+(1 until n).flatMap(i =>
+	(1 until i).map(j => (i, j)))
 ```
