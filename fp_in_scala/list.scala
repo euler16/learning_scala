@@ -57,6 +57,9 @@ def append[A](xs: List[A], ys: List[A]): List[A] =
     case List.Nil => ys
     case List.Cons(head, tail) => List.Cons(head, append(tail, ys))
 
+def concat[A](xss: List[List[A]]): List[A] = 
+  foldLeft(xss, List.Nil: List[A], append)
+
 def flatMap[A, B](as: List[A], f: A => List[B]): List[B] = 
   foldLeft(as, List.Nil, (acc: List[B], a: A) => append(acc, f(a)))
 
@@ -72,6 +75,8 @@ def flatMap2[A,B](as: List[A], f: A => List[B]): List[B] =
   println(List.drop(l, 2))
   println(List.dropWhile(l, x => x % 2 == 0))
   println(List.init(l))
+  val xss: List[List[Int]] = List(List(1,2,3), List(4,5), List(6))
+  println(concat(xss))
 
 
 
