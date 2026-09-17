@@ -1,2 +1,13 @@
-.bsp
-.scala-build
+# Scala build output and language-server state
+.bsp/
+.scala-build/
+.bloop/
+.metals/
+target/
+
+# Compiled Scala/JVM files
+*.class
+*.tasty
+
+# macOS metadata
+.DS_Store
