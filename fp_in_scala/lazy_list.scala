@@ -71,8 +71,8 @@ enum LazyList[+A]:
     else 
       this match
         case Empty => LazyList.empty
-        case Cons(h, t) => LazyList.cons(
-          h(),
+        case Cons(h, t) => LazyList.cons( // cons will not evaluate either of the two
+          {println("HEAD EVALUATED"); h()},
           if n == 1 then LazyList.empty
           else t().take(n-1) // note this returns LazyList
         )
@@ -127,8 +127,12 @@ object LazyList:
   println(tester)
   println(tester.toList)
 
-  println(tester.drop(2).toList)
-  println(tester.take(2).toList)
+  val resultDrop = tester.drop(2)
+
+  println(resultDrop.toList)
+
+  val resultTake = tester.take(2)
+  println(resultTake.toList)
 
   println("Both lists created")
   println("****************")
