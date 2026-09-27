@@ -40,6 +40,43 @@ enum LazyList[+A]:
     goEff(this, List.empty) 
 
 
+  def drop(n: Int): LazyList[A] = 
+   
+    @annotation.tailrec()
+    def loop(n: Int, llist: LazyList[A]): LazyList[A] = 
+      if n <= 0 then llist
+      else
+        llist match
+          case Empty => Empty
+          case Cons(h, t) => loop(n-1, t())
+
+    loop(n, this)
+ 
+  /*
+  def take(n: Int): LazyList[A] = 
+    @annotation.tailrec()
+    def loop(acc: LazyList[A], llist: LazyList[A], n: Int): LazyList[A] = 
+      if n == 0 then acc // what we want is acc.reverse
+      else 
+        llist match
+          case Cons(h, t) => loop(LazyList.cons(h(), acc), t(), n-1)
+          case Empty => acc // what we want is acc.reverse
+
+    loop(LazyList.empty, this, n)
+
+  */
+
+  def take(n: Int): LazyList[A] = 
+    if n <= 0 then LazyList.empty 
+    else 
+      this match
+        case Empty => LazyList.empty
+        case Cons(h, t) => LazyList.cons(
+          h(),
+          if n == 1 then LazyList.empty
+          else t().take(n-1) // note this returns LazyList
+        )
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -89,6 +126,9 @@ object LazyList:
 
   println(tester)
   println(tester.toList)
+
+  println(tester.drop(2).toList)
+  println(tester.take(2).toList)
 
   println("Both lists created")
   println("****************")
