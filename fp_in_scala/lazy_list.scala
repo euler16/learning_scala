@@ -31,13 +31,13 @@ enum LazyList[+A]:
         //
     
     @annotation.tailrec()
-    def goEff(llist: LazyList, acc: List[A]): List[A] = 
+    def goEff(llist: LazyList[A], acc: List[A]): List[A] = 
       llist match
         case Empty => acc.reverse
-        case Cons(h, t) => llist.head :: acc
+        case Cons(h, t) => goEff(t(), h() :: acc)
         
 
-    go(List.empty, this) 
+    goEff(this, List.empty) 
 
 
 object LazyList:
