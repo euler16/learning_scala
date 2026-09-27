@@ -14,6 +14,23 @@ enum LazyList[+A]:
       case Empty => None
       case Cons(h, _) => Some(h())
 
+  /*def toList: List[A] = 
+    this match
+      case Empty => List.empty
+      case Cons(h, t) => h()::t().toList
+  */
+
+  def toList: List[A] = 
+    
+    @annotation.tailrec()
+    def go(acc: List[A], llist: LazyList[A]): List[A] = 
+      llist match
+        case Empty => acc
+        case Cons(h, t) => go(acc:+ h(), t())
+
+    go(List.empty, this) 
+
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -56,6 +73,13 @@ object LazyList:
     { println("Evaluating direct head"); 42 },
     LazyList.empty
   )
+
+  val tester = LazyList.apply(
+    1, 2, 3
+  )
+
+  println(tester)
+  println(tester.toList)
 
   println("Both lists created")
   println("****************")
