@@ -26,7 +26,16 @@ enum LazyList[+A]:
     def go(acc: List[A], llist: LazyList[A]): List[A] = 
       llist match
         case Empty => acc
-        case Cons(h, t) => go(acc:+ h(), t())
+        case Cons(h, t) => go(acc:+ h(), t()) // this is slower as appending to a list is O(n)
+        // so in total the whole thing becomes O(n2)
+        //
+    
+    @annotation.tailrec()
+    def goEff(llist: LazyList, acc: List[A]): List[A] = 
+      llist match
+        case Empty => acc.reverse
+        case Cons(h, t) => llist.head :: acc
+        
 
     go(List.empty, this) 
 
