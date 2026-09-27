@@ -79,7 +79,12 @@ object Chapter4:
       head.flatMap(f).flatMap(hh => accumulated.map(tt => (hh::tt)))
     })
 
-  def 
+  def traverse[A, B](as: List[A])(f: A => Option[B]): Option[List[B]] =
+    as.foldRight(Option.Some(Nil))((head, accumulated) => {
+      f(head).flatMap(hh => accumulated.map(tt => (hh::tt)))
+    })
+
+   
 
 
 
@@ -91,6 +96,8 @@ object Chapter4:
   println(variance(l).getOrElse(0))
   val p : List[Option[Int]] = List(Option.Some(1), Option.Some(2), Option.Some(3))   
   // println(sequence3(p))
-  println(traverseExisting(p)(a => Option.Some(a)))
+  println(traverseExistingOptions(p)(a => Option.Some(a)))
+  val q : Option[List[Double]] = traverse[Double, Double](l)(Option.Some(_))
+  println(q)
 
 
