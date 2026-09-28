@@ -77,6 +77,11 @@ enum LazyList[+A]:
           else t().take(n-1) // note this returns LazyList
         )
 
+  def takeWhile(p : A => Boolean): LazyList[A] = 
+    this match
+      case Cons(h, t) => if p(h()) then LazyList.cons(h(), t().takeWhile(p)) else LazyList.empty
+      case Empty => LazyList.empty
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -129,10 +134,11 @@ object LazyList:
 
   val resultDrop = tester.drop(2)
 
-  println(resultDrop.toList)
+  println(s"Drop result ${resultDrop.toList}")
 
   val resultTake = tester.take(2)
-  println(resultTake.toList)
+  println("resultTake has been made by now")
+  println(s"Take result ${resultTake.toList}")
 
   println("Both lists created")
   println("****************")
