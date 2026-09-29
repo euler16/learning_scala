@@ -82,6 +82,15 @@ enum LazyList[+A]:
       case Cons(h, t) => if p(h()) then LazyList.cons(h(), t().takeWhile(p)) else LazyList.empty
       case Empty => LazyList.empty
 
+  def foldRight[B](acc: => B)(f: (A, => B) => B): B =
+    this match
+      case Cons(h, t) => f(h(), t().foldRight(acc)(f))
+      case _ => acc
+
+  def exists(p : A => Boolean): Boolean = 
+    this.foldRight(false)((a, b) => (p(a) || b))
+
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -150,3 +159,8 @@ object LazyList:
   println(cached.head)
 
 
+  val sum = tester.foldRight(0)(_ + _)
+  val subtraction = tester.foldRight(0)(_ - _)
+
+  val exists = tester.exists(_ == 2)
+  println(s"the list ${tester.toList}, sum : ${sum}, subtraction: ${subtraction}, exists : ${exists}")
