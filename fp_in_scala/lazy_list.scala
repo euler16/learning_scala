@@ -91,6 +91,10 @@ enum LazyList[+A]:
     this.foldRight(false)((a, b) => (p(a) || b))
 
 
+  // checks that all elements in the LazyList match a given predicate.
+  def forAll(p: A => Boolean): Boolean = 
+    foldRight(true)((a, rest) => p(a) && rest)
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -164,3 +168,6 @@ object LazyList:
 
   val exists = tester.exists(_ == 2)
   println(s"the list ${tester.toList}, sum : ${sum}, subtraction: ${subtraction}, exists : ${exists}")
+
+  val allPositive = tester.forAll(_ > 0)
+  println(allPositive)
