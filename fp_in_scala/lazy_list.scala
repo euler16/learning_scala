@@ -95,6 +95,62 @@ enum LazyList[+A]:
   def forAll(p: A => Boolean): Boolean = 
     foldRight(true)((a, rest) => p(a) && rest)
 
+
+  // takeWhile implemented using foldRight
+  def takeWhile2(p : A => Boolean): LazyList[A] = 
+    foldRight(LazyList.empty[A])((a, accumulated) => {
+      if p(a) then LazyList.cons(a, accumulated) else LazyList.empty[A]
+    })
+
+
+  // head using foldRight
+  def head2: Option[A] = 
+    foldRight(None)((a, b) => Some(a))
+
+
+  // map implemented using foldRight
+  def map[B](f : A => B) : LazyList[B] = 
+    // B is LazyList[B]
+    /*
+    this match
+      case Cons(h, t) => LazyList.cons(f(h()), t().map(f))
+      case _ => LazyList.empty[B]
+    */ 
+    foldRight(LazyList.empty[B])((a, accumulated) => LazyList.cons(f(a), accumulated))
+
+  def filter(p: A => Boolean): LazyList[A] = 
+    // B is LazyList[A]
+    // acc is LazyList.empty[A] 
+    /*
+    this match
+      case Cons(h, t) => if p(h()) then LazyList.cons(h(), t().filter(p)) else t().filter(p)
+      case _ => LazyList.empty[A]
+    */
+
+    foldRight(LazyList.empty[A])((a, accumulated) => {
+      if p(a) then LazyList.cons(a, accumulated)
+      else accumulated
+    })
+
+  // append using foldRight. the append method should be nonstrict in its argument
+  def append[A2 >: A](that: => LazyList[A2]): LazyList[A2] = 
+    // B is LazyList[A2]
+    /*
+    this match
+      case Cons(h, t) => LazyList.cons(h(), t().append(that)) 
+      case _ => that
+    */
+
+    foldRight(that)((a, accumulated) => LazyList.cons(a, accumulated))
+
+
+  def flatMap[B](f : A => LazyList[B]): LazyList[B] =  
+    // B is LazyList[B]
+    foldRight(LazyList.empty[B])((a, accumulated) => f(a).append(accumulated))
+
+
+    
+
 object LazyList:
   def cons[A](
     hd: => A,
@@ -171,3 +227,22 @@ object LazyList:
 
   val allPositive = tester.forAll(_ > 0)
   println(allPositive)
+
+  val resultTakeWhile2 = tester.takeWhile2(_ != 2)
+  println(s"TakeWhile2 result ${resultTakeWhile2.toList}")
+
+  val resultHead2 = tester.head2
+  println(s"Head2 result $resultHead2")
+  println(s"Head2 empty result ${LazyList.empty[Int].head2}")
+
+  val resultMap = tester.map(_ * 10)
+  println(s"Map result ${resultMap.toList}")
+
+  val resultFilter = tester.filter(_ % 2 != 0)
+  println(s"Filter result ${resultFilter.toList}")
+
+  val resultAppend = tester.append(LazyList(4, 5))
+  println(s"Append result ${resultAppend.toList}")
+
+  val resultFlatMap = tester.flatMap(a => LazyList(a, -a))
+  println(s"FlatMap result ${resultFlatMap.toList}")
