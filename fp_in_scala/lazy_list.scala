@@ -185,6 +185,8 @@ enum LazyList[+A]:
     }
 
   def startsWith[A](prefix: LazyList[A]): Boolean = 
+    this.zipAll(prefix).takeWhile(_._2.isDefined).forAll(_ == _)
+  
 
 object LazyList:
   def cons[A](
@@ -347,3 +349,9 @@ def continually2[A](a: A): LazyList[A] =
   val zipAllEmpty = LazyList.empty[Int].zipAll(LazyList.empty[String])
   println(s"zipAll both empty: ${zipAllEmpty.toList}")
   // List()
+  val sample = LazyList(1, 2, 3)
+
+  println(sample.startsWith(LazyList(1, 2)))       // true
+  println(sample.startsWith(LazyList(1, 9)))       // false
+  println(LazyList(1, 2).startsWith(LazyList(1, 2, 3))) // false
+  println(sample.startsWith(LazyList.empty[Int]))  // true
