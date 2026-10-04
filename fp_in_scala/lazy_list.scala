@@ -76,11 +76,32 @@ enum LazyList[+A]:
             else t().take(n - 1) // note this returns LazyList
           )
 
+  def takeWithUnfold(n: Int): LazyList[A] = 
+    unfold((n, this)){
+      case (m, ll) =>
+        (m, ll) match 
+          case (0, _) => None
+          case (_, LazyList.Empty) => None
+          case (m, Cons(h, t)) => 
+            if m > 0 then Some((h(), (m-1, t())))
+            else None
+    }
+
   def takeWhile(p: A => Boolean): LazyList[A] =
     this match
       case Cons(h, t) =>
         if p(h()) then LazyList.cons(h(), t().takeWhile(p)) else LazyList.empty
       case Empty => LazyList.empty
+
+  def takeWhileWithUnfold(p: A => Boolean): LazyList[A] = 
+    unfold(this) {
+      case Cons(h, t) => 
+        if p(h()) then Some((h(), t()))
+        else None
+
+      case _ => None
+
+    }
 
   def foldRight[B](acc: => B)(f: (A, => B) => B): B =
     this match
@@ -116,6 +137,15 @@ enum LazyList[+A]:
       LazyList.cons(f(a), accumulated)
     )
 
+  def mapWithUnfold[B](f: A => B): LazyList[B] = 
+    // what is the state? 
+    // what is the transition function
+    unfold(this)((ll) => {
+      ll match
+        case Cons(h, t) => Some((f(h()), t()))
+        case _ => None
+    })
+
   def filter(p: A => Boolean): LazyList[A] =
     // B is LazyList[A]
     // acc is LazyList.empty[A]
@@ -145,6 +175,14 @@ enum LazyList[+A]:
     // B is LazyList[B]
     foldRight(LazyList.empty[B])((a, accumulated) => f(a).append(accumulated))
 
+
+  def zipAll[B](that: LazyList[B]): LazyList[(Option[A], Option[B])] = 
+    unfold((this, that)) {
+      case (Empty, Empty) => None
+      case (Cons(h, t), Empty) => Some(   (Some(h()), None ) , (t(), Empty) )
+      case (Empty, Cons(h, t)) => Some(   (None, Some(h()) ),  (Empty, t()) )
+      case (Cons(h1, t1), Cons(h2, t2)) => Some(  (Some(h1()), Some(h2())  ), (t1(), t2()) )
+    }
 object LazyList:
   def cons[A](
       hd: => A,
@@ -283,3 +321,26 @@ def continually2[A](a: A): LazyList[A] =
 
   println(s"next 10 ints : ${from2(2).take(10).toList}")
   println(s"continually2 : ${{ continually2("b").take(3).toList }}")
+
+
+  println(s"double with mapWithUnfold : ${LazyList(1,2,3).map(_ * 2).toList}")
+  println(s"takeWithUnfold : ${LazyList(1,2,3).takeWithUnfold(2).toList}")
+
+  println(s"takeWhileWithUnfold : ${LazyList(2, 4, 6, 5, 7, 9).takeWhile(_ % 2 == 0).toList}")
+
+
+  val zipAllEqual = LazyList(1, 2).zipAll(LazyList("a", "b"))
+  println(s"zipAll equal length: ${zipAllEqual.toList}")
+  // List((Some(1),Some(a)), (Some(2),Some(b)))
+
+  val zipAllLeftLonger = LazyList(1, 2, 3).zipAll(LazyList("a"))
+  println(s"zipAll left longer: ${zipAllLeftLonger.toList}")
+  // List((Some(1),Some(a)), (Some(2),None), (Some(3),None))
+
+  val zipAllRightLonger = LazyList(1).zipAll(LazyList("a", "b", "c"))
+  println(s"zipAll right longer: ${zipAllRightLonger.toList}")
+  // List((Some(1),Some(a)), (None,Some(b)), (None,Some(c)))
+
+  val zipAllEmpty = LazyList.empty[Int].zipAll(LazyList.empty[String])
+  println(s"zipAll both empty: ${zipAllEmpty.toList}")
+  // List()
