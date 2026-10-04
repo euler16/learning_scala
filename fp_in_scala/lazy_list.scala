@@ -183,6 +183,9 @@ enum LazyList[+A]:
       case (Empty, Cons(h, t)) => Some(   (None, Some(h()) ),  (Empty, t()) )
       case (Cons(h1, t1), Cons(h2, t2)) => Some(  (Some(h1()), Some(h2())  ), (t1(), t2()) )
     }
+
+  def startsWith[A](prefix: LazyList[A]): Boolean = 
+
 object LazyList:
   def cons[A](
       hd: => A,
