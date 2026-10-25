@@ -26,7 +26,18 @@ def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
         val (b, rng3) = rb(rng2)
         (f(a, b), rng3)
 
-def both[A, B](ra: Rand[A, rb: Rand[B]): Rand[(A, B)] = 
+def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = 
+    rng => {
+        def loop(remaining: List[Rand[A]], acc: List[A], currentRng: RNG): List[A] = 
+            remaining match
+                case Nil => acc.reverse
+                case head :: tail =>
+                    val (a, nextRng) = head(currentRng)
+                    loop(tail, a :: acc, nextRng)
+        (loop(rs, Nil, rng), rng)
+    }
+
+def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] = 
     map2(ra, rb)((_, _))
 
 def randIntDouble: Rand[(Int, Double)] = 
@@ -34,6 +45,7 @@ def randIntDouble: Rand[(Int, Double)] =
 
 def randDoubleInt: Rand[(Double, Int)] = 
     both(double, int)
+
 
 
 val int : Rand[Int] = _.nextInt
@@ -60,3 +72,8 @@ def double(rng: RNG): (Double, RNG) =
 
     val (doubleValue, _) = double(rng)
     println(s"double: $doubleValue")
+
+    // code to test sequence
+    val randList: List[Rand[Int]] = List(nextIntRand, nextIntRand, nextIntRand)
+    val (randomInts, _) = sequence(randList)(rng)
+    println(s"sequence of nextInt: $randomInts")
