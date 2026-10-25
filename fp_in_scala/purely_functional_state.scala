@@ -26,15 +26,32 @@ def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
         val (b, rng3) = rb(rng2)
         (f(a, b), rng3)
 
+// this functions is conceptually important 
+// think about it as a list of state actions in RL and you apply them
+// in sequence to get a list of results and the final state
 def sequence[A](rs: List[Rand[A]]): Rand[List[A]] = 
-    rng => {
-        def loop(remaining: List[Rand[A]], acc: List[A], currentRng: RNG): List[A] = 
+    /*rng => {
+        def loop(
+            remaining: List[Rand[A]], 
+            acc: List[A], 
+            currentRng: RNG
+        ): (List[A], RNG) = 
             remaining match
-                case Nil => acc.reverse
+                case Nil => (acc.reverse, currentRng)
                 case head :: tail =>
                     val (a, nextRng) = head(currentRng)
                     loop(tail, a :: acc, nextRng)
-        (loop(rs, Nil, rng), rng)
+        loop(rs, Nil, rng)
+    }*/
+
+    rng => {
+       val (list, finalRng) = rs.foldLeft((List.empty[A], rng))((acc: (List[A], RNG), r: Rand[A]) => {
+        // remember rs is List[Rand[A]]
+        val (list, currentRng) = acc
+        val (a, nextRng) = r(currentRng)
+        (a :: list, nextRng)
+       })
+        (list.reverse, finalRng) 
     }
 
 def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] = 
